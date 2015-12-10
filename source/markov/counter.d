@@ -73,7 +73,7 @@ public:
 
     @property
     T *random()()
-    if(isAssignable!(T, typeof(null)))
+    if(!isAssignable!(T, typeof(null)))
     {
         if(!empty)
         {
