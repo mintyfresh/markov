@@ -15,7 +15,7 @@ private:
 public:
     this(T follow)
     {
-        _counts[T] = 1;
+        _counts[follow] = 1;
     }
 
     bool contains(T follow)
