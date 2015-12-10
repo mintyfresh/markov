@@ -159,5 +159,52 @@ public:
 
 unittest
 {
+    auto counter = Counter!string("1");
 
+    assert(counter.empty == false);
+    assert(counter.length == 1);
+    assert(counter.total == 1);
+
+    assert(counter.contains("1") == true);
+    assert(counter.random == "1");
+    assert(counter.select == "1");
+
+    assert(counter.peek("1") == 1);
+
+    counter.poke("1");
+    assert(counter.peek("1") == 2);
+    assert(counter.length == 1);
+    assert(counter.total == 2);
+
+    counter.poke("2");
+    assert(counter.peek("1") == 2);
+    assert(counter.peek("2") == 1);
+    assert(counter.length == 2);
+    assert(counter.total == 3);
+}
+
+unittest
+{
+    auto counter = Counter!int(1);
+
+    assert(counter.empty == false);
+    assert(counter.length == 1);
+    assert(counter.total == 1);
+
+    assert(counter.contains(1) == true);
+    assert(counter.random == 1);
+    assert(counter.select == 1);
+
+    assert(counter.peek(1) == 1);
+
+    counter.poke(1);
+    assert(counter.peek(1) == 2);
+    assert(counter.length == 1);
+    assert(counter.total == 2);
+
+    counter.poke(2);
+    assert(counter.peek(1) == 2);
+    assert(counter.peek(2) == 1);
+    assert(counter.length == 2);
+    assert(counter.total == 3);
 }
