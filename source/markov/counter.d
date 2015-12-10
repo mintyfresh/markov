@@ -57,20 +57,13 @@ public:
     }
 
     @property
-    auto random()
+    T random()()
+    if(isAssignable!(T, typeof(null)))
     {
         if(!empty)
         {
             auto index = uniform(0, length);
-
-            static if(isAssignable!(T, typeof(null)))
-            {
-                return _counts.keys[index];
-            }
-            else
-            {
-                return &_counts.keys[index];
-            }
+            return _counts.keys[index];
         }
         else
         {
@@ -79,7 +72,23 @@ public:
     }
 
     @property
-    auto select()
+    T *random()()
+    if(isAssignable!(T, typeof(null)))
+    {
+        if(!empty)
+        {
+            auto index = uniform(0, length);
+            return &_counts.keys[index];
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    @property
+    T select()()
+    if(isAssignable!(T, typeof(null)))
     {
         if(!empty)
         {
@@ -89,14 +98,36 @@ public:
             {
                 if(result < count)
                 {
-                    static if(isAssignable!(T, typeof(null)))
-                    {
-                        return value;
-                    }
-                    else
-                    {
-                        return &value;
-                    }
+                    return value;
+                }
+                else
+                {
+                    result -= count;
+                }
+            }
+
+            // No return.
+            assert(0);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    @property
+    T *select()()
+    if(!isAssignable!(T, typeof(null)))
+    {
+        if(!empty)
+        {
+            auto result = uniform(0, total);
+
+            foreach(value, count; _counts)
+            {
+                if(result < count)
+                {
+                    return &value;
                 }
                 else
                 {
