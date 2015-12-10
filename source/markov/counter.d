@@ -1,6 +1,7 @@
 
 module markov.counter;
 
+import std.algorithm;
 import std.random;
 import std.traits;
 import std.typecons;
