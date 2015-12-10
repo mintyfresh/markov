@@ -153,3 +153,92 @@ public:
         return _size;
     }
 }
+
+unittest
+{
+    try
+    {
+        auto state = State!string(0);
+        assert(0);
+    }
+    catch(Exception)
+    {
+        // Expected result.
+    }
+}
+
+unittest
+{
+    try
+    {
+        auto state = State!string(1);
+        state.poke(["1", "2"], "3");
+        assert(0);
+    }
+    catch(Exception)
+    {
+        // Expected result.
+    }
+}
+
+unittest
+{
+    auto state = State!string(1);
+
+    assert(state.empty == true);
+    assert(state.length == 0);
+    assert(state.size == 1);
+
+    assert(state.random is null);
+    assert(state.select(["1"]) is null);
+    assert(state.peek(["1"], "2") == 0);
+
+    state.poke(["1"], "2");
+    assert(state.empty == false);
+    assert(state.length == 1);
+    assert(state.size == 1);
+
+    assert(state.random == "2");
+    assert(state.select(["1"]) == "2");
+    assert(state.peek(["1"], "2") == 1);
+
+    state.poke(["1"], "2");
+    assert(state.peek(["1"], "2") == 2);
+    assert(state.peek(["1"], "3") == 0);
+
+    state.poke(["1"], "3");
+    assert(state.length == 1);
+    assert(state.peek(["1"], "2") == 2);
+    assert(state.peek(["1"], "3") == 1);
+}
+
+unittest
+{
+    auto state = State!int(1);
+
+    assert(state.empty == true);
+    assert(state.length == 0);
+    assert(state.size == 1);
+
+    assert(state.random.isNull);
+    assert(state.select([1]).isNull);
+    assert(state.peek([1], 2) == 0);
+
+    state.poke([1], 2);
+    assert(state.empty == false);
+    assert(state.length == 1);
+    assert(state.size == 1);
+
+    assert(state.random == 2);
+    assert(state.select([1]) == 2);
+    assert(state.peek([1], 2) == 1);
+
+    state.poke([1], 2);
+    assert(state.peek([1], 2) == 2);
+    assert(state.peek([1], 3) == 0);
+
+    state.poke([1], 3);
+    assert(state.length == 1);
+    assert(state.peek([1], 2) == 2);
+    assert(state.peek([1], 3) == 1);
+}
