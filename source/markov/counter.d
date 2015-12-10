@@ -72,18 +72,18 @@ public:
     }
 
     @property
-    T *random()()
+    Nullable!T random()()
     if(!isAssignable!(T, typeof(null)))
     {
+        Nullable!T result;
+
         if(!empty)
         {
             auto index = uniform(0, length);
-            return &_counts.keys[index];
+            result = _counts.keys[index];
         }
-        else
-        {
-            return null;
-        }
+
+        return result;
     }
 
     @property
@@ -116,32 +116,33 @@ public:
     }
 
     @property
-    T *select()()
+    Nullable!T select()()
     if(!isAssignable!(T, typeof(null)))
     {
+        Nullable!T result;
+
         if(!empty)
         {
-            auto result = uniform(0, total);
+            auto needle = uniform(0, total);
 
             foreach(value, count; _counts)
             {
-                if(result < count)
+                if(needle < count)
                 {
-                    return &value;
+                    result = value;
+                    return result;
                 }
                 else
                 {
-                    result -= count;
+                    needle -= count;
                 }
             }
 
             // No return.
             assert(0);
         }
-        else
-        {
-            return null;
-        }
+
+        return result;
     }
 
     @property
@@ -154,4 +155,9 @@ public:
 
         return _total.get;
     }
+}
+
+unittest
+{
+
 }

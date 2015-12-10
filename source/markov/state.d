@@ -3,6 +3,8 @@ module markov.state;
 
 import std.exception;
 import std.random;
+import std.traits;
+import std.typecons;
 
 import markov.counter;
 
@@ -86,7 +88,8 @@ public:
     }
 
     @property
-    auto random()
+    T random()()
+    if(isAssignable!(T, typeof(null)))
     {
         if(!empty)
         {
@@ -100,7 +103,23 @@ public:
     }
 
     @property
-    auto select(T[] first)
+    Nullable!T random()()
+    if(!isAssignable!(T, typeof(null)))
+    {
+        Nullable!T result;
+
+        if(!empty)
+        {
+            auto index = uniform(0, length);
+            result = _counters.values[index].random;
+        }
+
+        return result;
+    }
+
+    @property
+    auto select()(T[] first)
+    if(isAssignable!(T, typeof(null)))
     {
         if(!empty)
         {
@@ -111,6 +130,21 @@ public:
         {
             return null;
         }
+    }
+
+    @property
+    auto select()(T[] first)
+    if(!isAssignable!(T, typeof(null)))
+    {
+        Nullable!T result;
+
+        if(!empty)
+        {
+            auto ptr = first in _counters;
+            if(ptr) result = ptr.select;
+        }
+
+        return result;
     }
 
     @property

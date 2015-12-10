@@ -4,6 +4,7 @@ module markov.chain;
 import std.algorithm;
 import std.range;
 import std.traits;
+import std.typecons;
 
 import markov.state;
 
@@ -37,11 +38,11 @@ public:
         return result ? result : random;
     }
 
-    T *generate()()
+    Nullable!T generate()()
     if(!isAssignable!(T, typeof(null)))
     {
-        T *result = select;
-        return result ? result : random;
+        Nullable!T result = select;
+        return !result.isNull ? result : random;
     }
 
     @property
@@ -76,16 +77,23 @@ public:
     }
 
     @property
-    T *random()()
+    Nullable!T random()()
     if(!isAssignable!(T, typeof(null)))
     {
+        Nullable!T result;
+
         foreach(ref state; _states)
         {
-            T *current = state.random;
-            if(current) return push(*current), current;
+            result = state.random;
+
+            if(!result.isNull)
+            {
+                push(result.get);
+                return result;
+            }
         }
 
-        return null;
+        return result;
     }
 
     void seed(T[] seed...)
@@ -108,19 +116,26 @@ public:
         return null;
     }
 
-    T *select()()
+    Nullable!T select()()
     if(!isAssignable!(T, typeof(null)))
     {
+        Nullable!T result;
+
         if(!empty)
         {
             foreach(ref state; _states.values.sort!"a.size > b.size")
             {
-                T *current = state.select(_history[$ - state.size .. $]);
-                if(current) return push(*current), current;
+                result = state.select(_history[$ - state.size .. $]);
+
+                if(!result.isNull)
+                {
+                    push(result.get);
+                    return result;
+                }
             }
         }
 
-        return null;
+        return result;
     }
 
     @property
