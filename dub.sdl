@@ -1,4 +1,6 @@
 name "markov"
-description "A generic markov chain implementation."
+description "A generic markov chain library"
 copyright "Copyright © 2015, Mihail K"
 authors "Mihail-K"
+targetType "library"
+license "MIT"
