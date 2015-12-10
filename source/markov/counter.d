@@ -9,18 +9,39 @@ import std.typecons;
 struct Counter(T)
 {
 private:
-    ulong[T] _counts;
+    ulong[Key] _counts;
     Nullable!ulong _total;
+
+    struct Key
+    {
+        T[] _key;
+
+        this(T key)
+        {
+            _key = [key];
+        }
+
+        @property
+        T value()
+        {
+            return _key[0];
+        }
+
+        bool opEquals(ref const Key other) const
+        {
+            return _key == other._key;
+        }
+    }
 
 public:
     this(T follow)
     {
-        _counts[follow] = 1;
+        poke(follow);
     }
 
     bool contains(T follow)
     {
-        return !!(follow in _counts);
+        return !!(Key(follow) in _counts);
     }
 
     @property
@@ -37,14 +58,14 @@ public:
 
     ulong peek(T follow)
     {
-        auto ptr = follow in _counts;
+        auto ptr = Key(follow) in _counts;
         return ptr ? *ptr : 0;
     }
 
     void poke(T follow)
     {
         scope(exit) _total.nullify;
-        auto ptr = follow in _counts;
+        auto ptr = Key(follow) in _counts;
 
         if(ptr !is null)
         {
@@ -52,7 +73,7 @@ public:
         }
         else
         {
-            _counts[follow] = 1;
+            _counts[Key(follow)] = 1;
         }
     }
 
@@ -63,7 +84,7 @@ public:
         if(!empty)
         {
             auto index = uniform(0, length);
-            return _counts.keys[index];
+            return _counts.keys[index].value;
         }
         else
         {
@@ -80,7 +101,7 @@ public:
         if(!empty)
         {
             auto index = uniform(0, length);
-            result = _counts.keys[index];
+            result = _counts.keys[index].value;
         }
 
         return result;
@@ -94,11 +115,11 @@ public:
         {
             auto result = uniform(0, total);
 
-            foreach(value, count; _counts)
+            foreach(key, count; _counts)
             {
                 if(result < count)
                 {
-                    return value;
+                    return key.value;
                 }
                 else
                 {
@@ -125,11 +146,11 @@ public:
         {
             auto needle = uniform(0, total);
 
-            foreach(value, count; _counts)
+            foreach(key, count; _counts)
             {
                 if(needle < count)
                 {
-                    result = value;
+                    result = key.value;
                     return result;
                 }
                 else
@@ -205,6 +226,32 @@ unittest
     counter.poke(2);
     assert(counter.peek(1) == 2);
     assert(counter.peek(2) == 1);
+    assert(counter.length == 2);
+    assert(counter.total == 3);
+}
+
+unittest
+{
+    auto counter = Counter!(int[])([1]);
+
+    assert(counter.empty == false);
+    assert(counter.length == 1);
+    assert(counter.total == 1);
+
+    assert(counter.contains([1]) == true);
+    assert(counter.random == [1]);
+    assert(counter.select == [1]);
+
+    assert(counter.peek([1]) == 1);
+
+    counter.poke([1]);
+    assert(counter.peek([1]) == 2);
+    assert(counter.length == 1);
+    assert(counter.total == 2);
+
+    counter.poke([2]);
+    assert(counter.peek([1]) == 2);
+    assert(counter.peek([2]) == 1);
     assert(counter.length == 2);
     assert(counter.total == 3);
 }

@@ -12,7 +12,17 @@ struct State(T)
 {
 private:
     size_t _size;
-    Counter!T[immutable(T[])] _counters;
+    Counter!T[Key] _counters;
+
+    struct Key
+    {
+        T[] _key;
+
+        bool opEquals(ref const Key other) const
+        {
+            return _key == other._key;
+        }
+    }
 
 public:
     this(size_t size)
@@ -24,7 +34,7 @@ public:
     {
         if(first.length == size)
         {
-            return !!(first in _counters);
+            return !!(Key(first) in _counters);
         }
         else
         {
@@ -36,7 +46,7 @@ public:
     {
         if(first.length == size)
         {
-            auto ptr = first in _counters;
+            auto ptr = Key(first) in _counters;
             return ptr ? ptr.contains(follow) : false;
         }
         else
@@ -61,7 +71,7 @@ public:
     {
         if(first.length == size)
         {
-            auto ptr = first in _counters;
+            auto ptr = Key(first) in _counters;
             return ptr ? ptr.peek(follow) : 0;
         }
         else
@@ -75,7 +85,7 @@ public:
         // Ensure that first length is equal to this state's size.
         enforce(first.length == size, "Length of input doesn't match size.");
 
-        auto ptr = first in _counters;
+        auto ptr = Key(first) in _counters;
 
         if(ptr !is null)
         {
@@ -83,7 +93,7 @@ public:
         }
         else
         {
-            _counters[first.idup] = Counter!T(follow);
+            _counters[Key(first)] = Counter!T(follow);
         }
     }
 
@@ -123,7 +133,7 @@ public:
     {
         if(!empty)
         {
-            auto ptr = first in _counters;
+            auto ptr = Key(first) in _counters;
             return ptr ? ptr.select : null;
         }
         else
@@ -140,7 +150,7 @@ public:
 
         if(!empty)
         {
-            auto ptr = first in _counters;
+            auto ptr = Key(first) in _counters;
             if(ptr) result = ptr.select;
         }
 
@@ -241,4 +251,35 @@ unittest
     assert(state.length == 1);
     assert(state.peek([1], 2) == 2);
     assert(state.peek([1], 3) == 1);
+}
+
+unittest
+{
+    auto state = State!(int[])(1);
+
+    assert(state.empty == true);
+    assert(state.length == 0);
+    assert(state.size == 1);
+
+    assert(state.random is null);
+    assert(state.select([[1]]) is null);
+    assert(state.peek([[1]], [2]) == 0);
+
+    state.poke([[1]], [2]);
+    assert(state.empty == false);
+    assert(state.length == 1);
+    assert(state.size == 1);
+
+    assert(state.random == [2]);
+    assert(state.select([[1]]) == [2]);
+    assert(state.peek([[1]], [2]) == 1);
+
+    state.poke([[1]], [2]);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 0);
+
+    state.poke([[1]], [3]);
+    assert(state.length == 1);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 1);
 }
