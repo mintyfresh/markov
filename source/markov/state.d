@@ -113,22 +113,22 @@ public:
     }
 
     @property
-    Nullable!T random()()
+    Nullable!(Unqual!T)random()()
     if(!isAssignable!(T, typeof(null)))
     {
-        Nullable!T result;
+        Nullable!(Unqual!T) result;
 
         if(!empty)
         {
             auto index = uniform(0, length);
-            result = _counters.values[index].random;
+            return _counters.values[index].random;
         }
 
         return result;
     }
 
     @property
-    auto select()(T[] first)
+    T select()(T[] first)
     if(isAssignable!(T, typeof(null)))
     {
         if(!empty)
@@ -143,15 +143,15 @@ public:
     }
 
     @property
-    auto select()(T[] first)
+    Nullable!(Unqual!T) select()(T[] first)
     if(!isAssignable!(T, typeof(null)))
     {
-        Nullable!T result;
+        Nullable!(Unqual!T) result;
 
         if(!empty)
         {
             auto ptr = Key(first) in _counters;
-            if(ptr) result = ptr.select;
+            if(ptr) return ptr.select;
         }
 
         return result;
@@ -263,6 +263,68 @@ unittest
 
     assert(state.random is null);
     assert(state.select([[1]]) is null);
+    assert(state.peek([[1]], [2]) == 0);
+
+    state.poke([[1]], [2]);
+    assert(state.empty == false);
+    assert(state.length == 1);
+    assert(state.size == 1);
+
+    assert(state.random == [2]);
+    assert(state.select([[1]]) == [2]);
+    assert(state.peek([[1]], [2]) == 1);
+
+    state.poke([[1]], [2]);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 0);
+
+    state.poke([[1]], [3]);
+    assert(state.length == 1);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 1);
+}
+
+unittest
+{
+    auto state = State!(const(int[]))(1);
+
+    assert(state.empty == true);
+    assert(state.length == 0);
+    assert(state.size == 1);
+
+    assert(state.random.isNull);
+    assert(state.select([[1]]).isNull);
+    assert(state.peek([[1]], [2]) == 0);
+
+    state.poke([[1]], [2]);
+    assert(state.empty == false);
+    assert(state.length == 1);
+    assert(state.size == 1);
+
+    assert(state.random == [2]);
+    assert(state.select([[1]]) == [2]);
+    assert(state.peek([[1]], [2]) == 1);
+
+    state.poke([[1]], [2]);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 0);
+
+    state.poke([[1]], [3]);
+    assert(state.length == 1);
+    assert(state.peek([[1]], [2]) == 2);
+    assert(state.peek([[1]], [3]) == 1);
+}
+
+unittest
+{
+    auto state = State!(immutable(int[]))(1);
+
+    assert(state.empty == true);
+    assert(state.length == 0);
+    assert(state.size == 1);
+
+    assert(state.random.isNull);
+    assert(state.select([[1]]).isNull);
     assert(state.peek([[1]], [2]) == 0);
 
     state.poke([[1]], [2]);

@@ -51,10 +51,10 @@ public:
         return result ? result : random;
     }
 
-    Nullable!T generate()()
+    Nullable!(Unqual!T) generate()()
     if(!isAssignable!(T, typeof(null)))
     {
-        Nullable!T result = select;
+        Nullable!(Unqual!T) result = select;
         return !result.isNull ? result : random;
     }
 
@@ -72,8 +72,15 @@ public:
 
     void push(T follow)
     {
-        copy(_history[1 .. $], _history[0 .. $ - 1]);
-        _history[$ - 1] = follow;
+        static if(isMutable!T)
+        {
+            copy(_history[1 .. $], _history[0 .. $ - 1]);
+            _history[$ - 1] = follow;
+        }
+        else
+        {
+            _history = _history[1 .. $] ~ [ follow ];
+        }
     }
 
     @property
@@ -90,10 +97,10 @@ public:
     }
 
     @property
-    Nullable!T random()()
+    Nullable!(Unqual!T) random()()
     if(!isAssignable!(T, typeof(null)))
     {
-        Nullable!T result;
+        Nullable!(Unqual!T) result;
 
         foreach(ref state; _states)
         {
@@ -135,10 +142,10 @@ public:
         return null;
     }
 
-    Nullable!T select()()
+    Nullable!(Unqual!T) select()()
     if(!isAssignable!(T, typeof(null)))
     {
-        Nullable!T result;
+        Nullable!(Unqual!T) result;
 
         if(!empty)
         {
@@ -177,4 +184,18 @@ public:
             }
         }
     }
+}
+
+unittest
+{
+    auto chain = MarkovChain!(int[])(1);
+
+    chain.train([1, 2, 3], [4, 5, 6], [7, 8, 9]);
+}
+
+unittest
+{
+    auto chain = MarkovChain!(immutable(int[]))(1);
+
+    chain.train([1, 2, 3], [4, 5, 6], [7, 8, 9]);
 }
