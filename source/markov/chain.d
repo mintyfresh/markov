@@ -2,6 +2,8 @@
 module markov.chain;
 
 import std.algorithm;
+import std.range;
+import std.traits;
 
 import markov.state;
 
@@ -12,7 +14,7 @@ private:
     State!T[size_t] _states;
 
 public:
-    this(size_t sizes = [ 1, 2, 3 ]...)
+    this(size_t[] sizes = [ 1, 2, 3 ]...)
     {
         _history.length = sizes.reduce!max;
 
@@ -102,7 +104,7 @@ public:
         return _states.values.map!"a.size".array;
     }
 
-    void train(T[] input)
+    void train(T[] input...)
     {
         foreach(index, follow; input)
         {
