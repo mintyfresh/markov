@@ -1,0 +1,4 @@
+name "markov"
+description "A generic markov chain implementation."
+copyright "Copyright © 2015, Mihail K"
+authors "Mihail-K"
