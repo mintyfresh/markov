@@ -34,6 +34,16 @@ public:
         return _states.values.all!"a.empty";
     }
 
+    void feed(T[] first, T follow)
+    {
+        auto ptr = first.length in _states;
+
+        if(ptr !is null)
+        {
+            ptr.poke(first, follow);
+        }
+    }
+
     T generate()()
     if(isAssignable!(T, typeof(null)))
     {
