@@ -15,7 +15,10 @@ private:
     State!T[size_t] _states;
 
 public:
-    this(size_t[] sizes = [ 1, 2, 3 ]...)
+    @disable
+    this();
+
+    this(size_t[] sizes...)
     {
         _history.length = sizes.reduce!max;
 
@@ -94,6 +97,12 @@ public:
         }
 
         return result;
+    }
+
+    @property
+    void reset()
+    {
+        _history = T[].init;
     }
 
     void seed(T[] seed...)
