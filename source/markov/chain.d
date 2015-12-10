@@ -33,31 +33,21 @@ public:
     T generate()()
     if(isAssignable!(T, typeof(null)))
     {
-        if(!empty)
-        {
-            foreach(state; _states.values.sort!"a.size > b.size")
-            {
-                T current = state.select(_history[$ - state.size .. $]);
-                if(currrent) return current;
-            }
-        }
-
-        return null;
+        T result = select;
+        return result ? result : random;
     }
 
     T *generate()()
     if(!isAssignable!(T, typeof(null)))
     {
-        if(!empty)
-        {
-            foreach(state; _states.values.sort!"a.size > b.size")
-            {
-                T *current = state.select(_history[$ - state.size .. $]);
-                if(current) return current;
-            }
-        }
+        T *result = select;
+        return result ? result : random;
+    }
 
-        return null;
+    @property
+    size_t length()
+    {
+        return _states.length;
     }
 
     @property
@@ -76,10 +66,10 @@ public:
     T random()()
     if(isAssignable!(T, typeof(null)))
     {
-        foreach(state; _states)
+        foreach(ref state; _states)
         {
             T current = state.random;
-            if(current) return current;
+            if(current) return push(current), current;
         }
 
         return null;
@@ -89,10 +79,45 @@ public:
     T *random()()
     if(!isAssignable!(T, typeof(null)))
     {
-        foreach(state; _states)
+        foreach(ref state; _states)
         {
             T *current = state.random;
-            if(current) return current;
+            if(current) return push(*current), current;
+        }
+
+        return null;
+    }
+
+    void seed(T[] seed...)
+    {
+        seed.retro.take(_history.length).each!(f => push(f));
+    }
+
+    T select()()
+    if(isAssignable!(T, typeof(null)))
+    {
+        if(!empty)
+        {
+            foreach(ref state; _states.values.sort!"a.size > b.size")
+            {
+                T current = state.select(_history[$ - state.size .. $]);
+                if(current) return push(current), current;
+            }
+        }
+
+        return null;
+    }
+
+    T *select()()
+    if(!isAssignable!(T, typeof(null)))
+    {
+        if(!empty)
+        {
+            foreach(ref state; _states.values.sort!"a.size > b.size")
+            {
+                T *current = state.select(_history[$ - state.size .. $]);
+                if(current) return push(*current), current;
+            }
         }
 
         return null;
@@ -108,9 +133,9 @@ public:
     {
         foreach(index, follow; input)
         {
-            foreach(size, state; _states)
+            foreach(size, ref state; _states)
             {
-                if(index - size >= 0)
+                if(size <= index)
                 {
                     T[] first = input[index - size .. index];
                     state.poke(first, follow);
