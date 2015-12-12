@@ -58,6 +58,55 @@ public:
         return !result.isNull ? result : random;
     }
 
+    Unqual!T[] generate()(size_t length)
+    {
+        Unqual!T[] output;
+
+        if(generate(length, output) == length)
+        {
+            return output;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    size_t generate()(size_t length, out Unqual!T[] output)
+    {
+        output = new Unqual!T[length];
+
+        foreach(i; 0 .. length)
+        {
+            auto result = generate;
+
+            static if(isAssignable!(T, typeof(null)))
+            {
+                if(result is null)
+                {
+                    return i;
+                }
+                else
+                {
+                    output[i] = result;
+                }
+            }
+            else
+            {
+                if(result.isNull)
+                {
+                    return i;
+                }
+                else
+                {
+                    output[i] = result.get;
+                }
+            }
+        }
+
+        return length;
+    }
+
     @property
     size_t length()
     {
