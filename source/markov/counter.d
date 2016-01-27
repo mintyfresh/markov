@@ -123,6 +123,12 @@ public:
     }
 
     @property
+    void rehash()
+    {
+        _counts.rehash;
+    }
+
+    @property
     T select()()
     if(isAssignable!(T, typeof(null)))
     {

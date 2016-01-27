@@ -171,6 +171,15 @@ public:
         _history = T[].init;
     }
 
+    @property
+    void rehash(bool deep = false)
+    {
+        foreach(ref state; _states)
+        {
+            state.rehash(deep);
+        }
+    }
+
     void seed(T[] seed...)
     {
         seed.retro.take(_history.length).each!(f => push(f));

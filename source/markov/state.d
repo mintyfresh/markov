@@ -128,6 +128,20 @@ public:
     }
 
     @property
+    void rehash(bool deep = false)
+    {
+        _counters.rehash;
+
+        if(deep)
+        {
+            foreach(ref counter; _counters)
+            {
+                counter.rehash;
+            }
+        }
+    }
+
+    @property
     T select()(T[] first)
     if(isAssignable!(T, typeof(null)))
     {
