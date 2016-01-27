@@ -14,17 +14,32 @@ private:
 
     struct Key
     {
-        T[] _key;
+        T _key;
 
         this(T key)
         {
-            _key = [key];
+            _key = key;
         }
 
         @property
         T value()
         {
-            return _key[0];
+            return _key;
+        }
+
+        hash_t toHash() const
+        {
+            static if(__traits(compiles, {
+                T key = void;
+                hash_t hash = key.toHash;
+            }))
+            {
+                return _key.toHash;
+            }
+            else
+            {
+                return hashOf(_key);
+            }
         }
 
         bool opEquals(ref const Key other) const
