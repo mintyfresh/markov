@@ -16,7 +16,7 @@ private:
 
     struct Key
     {
-        T[] _key;
+        const T[] _key;
 
         bool opEquals(ref const Key other) const
         {
@@ -67,7 +67,7 @@ public:
         return _counters.length;
     }
 
-    ulong peek(T[] first, T follow)
+    uint peek(T[] first, T follow)
     {
         if(first.length == size)
         {

@@ -172,11 +172,11 @@ public:
     }
 
     @property
-    void rehash(bool deep = false)
+    void rehash()
     {
         foreach(ref state; _states)
         {
-            state.rehash(deep);
+            state.rehash;
         }
     }
 

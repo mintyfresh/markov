@@ -9,17 +9,12 @@ import std.typecons;
 struct Counter(T)
 {
 private:
-    ulong[Key] _counts;
-    Nullable!ulong _total;
+    uint[Key] _counts;
+    uint _total;
 
     struct Key
     {
         T _key;
-
-        this(T key)
-        {
-            _key = key;
-        }
 
         @property
         T value()
@@ -71,7 +66,7 @@ public:
         return _counts.length;
     }
 
-    ulong peek(T follow)
+    uint peek(T follow)
     {
         auto ptr = Key(follow) in _counts;
         return ptr ? *ptr : 0;
@@ -79,7 +74,7 @@ public:
 
     void poke(T follow)
     {
-        scope(exit) _total.nullify;
+        scope(exit) _total = 0;
         auto ptr = Key(follow) in _counts;
 
         if(ptr !is null)
@@ -188,14 +183,14 @@ public:
     }
 
     @property
-    ulong total()
+    uint total()
     {
-        if(_total.isNull)
+        if(_total == 0)
         {
             _total = _counts.values.sum;
         }
 
-        return _total.get;
+        return _total;
     }
 }
 
