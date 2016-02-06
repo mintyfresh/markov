@@ -2,6 +2,7 @@
 module markov.counter;
 
 import std.algorithm;
+import std.array;
 import std.random;
 import std.traits;
 import std.typecons;
@@ -60,6 +61,17 @@ public:
         return length == 0;
     }
 
+    uint get(T follow)
+    {
+        return _counts[Key(follow)];
+    }
+
+    @property
+    T[] keys()
+    {
+        return _counts.keys.map!"a.value".array;
+    }
+
     @property
     size_t length()
     {
@@ -103,7 +115,7 @@ public:
     }
 
     @property
-    Nullable!(Unqual!T)  random()()
+    Nullable!(Unqual!T) random()()
     if(!isAssignable!(T, typeof(null)))
     {
         Nullable!(Unqual!T) result;
@@ -180,6 +192,11 @@ public:
         }
 
         return result;
+    }
+
+    void set(T follow, uint count)
+    {
+        _counts[Key(follow)] = count;
     }
 
     @property

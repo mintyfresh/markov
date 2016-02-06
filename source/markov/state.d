@@ -61,6 +61,11 @@ public:
         return length == 0;
     }
 
+    Counter!T get(T[] first)
+    {
+        return _counters[Key(first)];
+    }
+
     @property
     size_t length()
     {
@@ -93,7 +98,10 @@ public:
         }
         else
         {
-            _counters[Key(first)] = Counter!T(follow);
+            Counter!T counter;
+            counter.poke(follow);
+
+            _counters[Key(first)] = counter;
         }
     }
 
@@ -169,6 +177,11 @@ public:
         }
 
         return result;
+    }
+
+    void set(T[] first, Counter!T counter)
+    {
+        _counters[Key(first)] = counter;
     }
 
     @property

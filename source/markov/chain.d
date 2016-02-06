@@ -28,6 +28,16 @@ public:
         }
     }
 
+    this(State!T[] states...)
+    {
+        foreach(state; states)
+        {
+            _states[state.size] = state;
+        }
+
+        _history.length = _states.values.map!"a.size".reduce!max;
+    }
+
     @property
     bool empty()
     {
