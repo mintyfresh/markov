@@ -17,6 +17,9 @@ abstract class Encoder(T, Output) if(isEncodable!(T, Output))
     abstract Output encode(ref MarkovChain!T chain);
 }
 
+/++
+ + Checks a type is decodable from a given input type.
+ ++/
 template isDecodable(T, Input)
 {
     enum isDecodable =
@@ -29,6 +32,9 @@ template isDecodable(T, Input)
         hasDecodeProperty!(T, Input);
 }
 
+/++
+ + Checks if a type is encoding into a given output type.
+ ++/
 template isEncodable(T, Output)
 {
     enum isEncodable =
@@ -41,6 +47,9 @@ template isEncodable(T, Output)
         hasEncodeProperty!(T, Output);
 }
 
+/++
+ + Checks if the type declares a compatible decode property.
+ ++/
 template hasDecodeProperty(T, Input)
 {
     enum hasDecodeProperty = __traits(compiles, {
@@ -49,6 +58,9 @@ template hasDecodeProperty(T, Input)
     });
 }
 
+/++
+ + Checks if the type declares a compatible encode property.
+ ++/
 template hasEncodeProperty(T, Output)
 {
     enum hasEncodeProperty = __traits(compiles, {

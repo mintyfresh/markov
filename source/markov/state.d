@@ -10,22 +10,34 @@ import std.typecons;
 
 import markov.counter;
 
+/++
+ + Represents a table of token sequences bound to counter tables in a markov chain.
+ ++/
 struct State(T)
 {
 private:
     size_t _size;
     Counter!T[Key] _counters;
 
+    /++
+     + Wraps a token, abstracting type qualifiers.
+     ++/
     struct Key
     {
         const T[] _key;
 
+        /++
+         + Returns the natural value of the token sequence.
+         ++/
         @property
         T[] value()
         {
             return cast(T[]) _key.dup;
         }
 
+        /++
+         + Compares two token sequences for equality.
+         ++/
         bool opEquals(ref const Key other) const
         {
             return _key == other._key;
@@ -33,11 +45,21 @@ private:
     }
 
 public:
+    @disable
+    this();
+
+    /++
+     + Constructs a markov state with the given size.
+     + The size must be greater than 0.
+     ++/
     this(size_t size)
     {
         _size = enforce(size, "State size cannot be 0.");
     }
 
+    /++
+     + Checks if a counter table exists in the markov state.
+     ++/
     bool contains(T[] first)
     {
         if(first.length == size)
@@ -50,6 +72,9 @@ public:
         }
     }
 
+    /++
+     + Checks if a token exists in a counter table in the markov state.
+     ++/
     bool contains(T[] first, T follow)
     {
         if(first.length == size)
@@ -63,29 +88,48 @@ public:
         }
     }
 
+    /++
+     + Checks if the markov state is empty.
+     ++/
     @property
     bool empty()
     {
         return length == 0;
     }
 
+    /++
+     + Returns the counter table that corresponds to the token sequence.
+     ++/
     Counter!T get(T[] first)
     {
         return _counters[Key(first)];
     }
 
+    /++
+     + Returns a list of token sequences in the counter table.
+     ++/
     @property
     T[][] keys()
     {
         return _counters.keys.map!"a.value".array;
     }
 
+    /++
+     + Returns the length of the markov state.
+     ++/
     @property
     size_t length()
     {
         return _counters.length;
     }
 
+    /++
+     + Return the counter value of a token, from the counter table that
+     + corresponds to the given token sequence.
+     + If the token doesn't exist in the counter table, of the leading sequence
+     + doesn't exist in the markov state, or the length of the sequence doesn't
+     + match the size of the markov state, 0 is returned instead.
+     ++/
     uint peek(T[] first, T follow)
     {
         if(first.length == size)
@@ -99,6 +143,14 @@ public:
         }
     }
 
+    /++
+     + Pokes a token in the counter table that corresponds to the given leading
+     + sequence of tokens, incrementing its counter value.
+     + If the token counter have an entry in the counter table, it is created
+     + and assigned a value of 1, and if no counter table exists for the leading
+     + token sequence, one is created as well.
+     + The length of the token sequence must match the size of the markov state.
+     ++/
     void poke(T[] first, T follow)
     {
         // Ensure that first length is equal to this state's size.
@@ -119,6 +171,11 @@ public:
         }
     }
 
+    /++
+     + Returns a random token from a random counter table.
+     + If either the markov state or the counter table is empty,
+     + null is returned instead.
+     ++/
     @property
     T random()()
     if(isAssignable!(T, typeof(null)))
@@ -134,8 +191,11 @@ public:
         }
     }
 
+    /++
+     + Ditto
+     ++/
     @property
-    Nullable!(Unqual!T)random()()
+    Nullable!(Unqual!T) random()()
     if(!isAssignable!(T, typeof(null)))
     {
         Nullable!(Unqual!T) result;
@@ -149,6 +209,12 @@ public:
         return result;
     }
 
+    /++
+     + Rebuilds the associative arrays used by the markov table.
+     +
+     + Params:
+     +   deep = If true, all the counter tables are rebuilt as well.
+     ++/
     @property
     void rehash(bool deep = false)
     {
@@ -163,6 +229,14 @@ public:
         }
     }
 
+    /++
+     + Returns a random token that might follow the given sequence of tokens
+     + based on the markov state and the counter table that corresponds to the
+     + token sequence.
+     + If either the markov state of the corresponding counter table is empty,
+     + or the token sequence doesn't have a counter table assigned to it,
+     + null is returned instead.
+     ++/
     @property
     T select()(T[] first)
     if(isAssignable!(T, typeof(null)))
@@ -178,6 +252,9 @@ public:
         }
     }
 
+    /++
+     + Ditto
+     ++/
     @property
     Nullable!(Unqual!T) select()(T[] first)
     if(!isAssignable!(T, typeof(null)))
@@ -193,11 +270,17 @@ public:
         return result;
     }
 
+    /++
+     + Sets the counter table for a given sequence of tokens.
+     ++/
     void set(T[] first, Counter!T counter)
     {
         _counters[Key(first)] = counter;
     }
 
+    /++
+     + Returns the size of the markov state.
+     ++/
     @property
     size_t size()
     {
