@@ -14,9 +14,9 @@ import std.range;
 import std.stdio;
 import std.typecons;
 
-class JsonDecoder(T) : Decoder!(T, string)
+struct JsonDecoder(T)
 {
-    override MarkovChain!T decode(string input)
+    MarkovChain!T decode(string input)
     {
         return MarkovChain!T(decodeStates(input.parseJSON));
     }
@@ -72,7 +72,7 @@ private:
 @property
 MarkovChain!T toMarkovChain(T)(string input)
 {
-    return new JsonDecoder!T().decode(input);
+    return JsonDecoder!T().decode(input);
 }
 
 @property

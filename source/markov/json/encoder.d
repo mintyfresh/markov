@@ -13,7 +13,7 @@ import std.json;
 import std.stdio;
 import std.string;
 
-class JsonEncoder(T) : Encoder!(T, string)
+struct JsonEncoder(T)
 {
 private:
     bool _pretty;
@@ -24,7 +24,7 @@ public:
         _pretty = pretty;
     }
 
-    override string encode(ref MarkovChain!T chain)
+    string encode(ref MarkovChain!T chain)
     {
         JSONValue states = chain.states.map!(s => encodeState(s)).array;
 
@@ -79,7 +79,7 @@ private:
 @property
 string toJson(T)(ref MarkovChain!T chain, bool pretty = false)
 {
-    return new JsonEncoder!T(pretty).encode(chain);
+    return JsonEncoder!T(pretty).encode(chain);
 }
 
 @property

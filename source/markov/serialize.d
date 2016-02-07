@@ -7,16 +7,6 @@ import markov.state;
 
 import std.traits;
 
-abstract class Decoder(T, Input) if(isDecodable!(T, Input))
-{
-    abstract MarkovChain!T decode(Input input);
-}
-
-abstract class Encoder(T, Output) if(isEncodable!(T, Output))
-{
-    abstract Output encode(ref MarkovChain!T chain);
-}
-
 /++
  + Checks a type is decodable from a given input type.
  ++/
