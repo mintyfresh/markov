@@ -18,6 +18,9 @@ public:
     @disable
     this();
 
+    /++
+     + Constructs a markov chain with empty states of the given sizes.
+     ++/
     this(size_t[] sizes...)
     {
         _history.length = sizes.reduce!max;
@@ -28,6 +31,9 @@ public:
         }
     }
 
+    /++
+     + Constructs a markov chain using a list of existing states.
+     ++/
     this(State!T[] states...)
     {
         foreach(state; states)
@@ -38,12 +44,18 @@ public:
         _history.length = _states.values.map!"a.size".reduce!max;
     }
 
+    /++
+     + Checks if all of the markov chain's states are empty.
+     ++/
     @property
     bool empty()
     {
         return _states.values.all!"a.empty";
     }
 
+    /++
+     + Trains the markov chain with a specific token sequence.
+     ++/
     void feed(T[] first, T follow)
     {
         auto ptr = first.length in _states;
@@ -54,6 +66,10 @@ public:
         }
     }
 
+    /++
+     + Returns a token generated from the internal set of states, based on the
+     + tokens previously generated. If no token can be produced, a random one is returned.
+     ++/
     T generate()()
     if(isAssignable!(T, typeof(null)))
     {
@@ -61,6 +77,9 @@ public:
         return result ? result : random;
     }
 
+    /++
+     + Ditto
+     ++/
     Nullable!(Unqual!T) generate()()
     if(!isAssignable!(T, typeof(null)))
     {
@@ -68,6 +87,9 @@ public:
         return !result.isNull ? result : random;
     }
 
+    /++
+     + Ditto, but produces an array of token with the given length.
+     ++/
     Unqual!T[] generate()(size_t length)
     {
         Unqual!T[] output;
@@ -82,6 +104,12 @@ public:
         }
     }
 
+    /++
+     + Ditto, but the array is given as an out-parameter.
+     +
+     + Returns:
+     +   The number of tokens that were generated.
+     ++/
     size_t generate()(size_t length, out Unqual!T[] output)
     {
         output = new Unqual!T[length];
@@ -117,18 +145,27 @@ public:
         return length;
     }
 
+    /++
+     + Returns the number of states used by the markov chain.
+     ++/
     @property
     size_t length()
     {
         return _states.length;
     }
 
+    /++
+     + Returns the lengths of the markov chain's states in an unknown order.
+     ++/
     @property
     size_t[] lengths()
     {
         return _states.values.map!"a.length".array;
     }
 
+    /++
+     + Pushes a token to the markov chain's history buffer.
+     ++/
     void push(T follow)
     {
         static if(isMutable!T)
@@ -142,6 +179,9 @@ public:
         }
     }
 
+    /++
+     + Returns a randomly selected token from a randomly selected state.
+     ++/
     @property
     T random()()
     if(isAssignable!(T, typeof(null)))
@@ -155,6 +195,9 @@ public:
         return null;
     }
 
+    /++
+     + Ditto.
+     ++/
     @property
     Nullable!(Unqual!T) random()()
     if(!isAssignable!(T, typeof(null)))
@@ -175,12 +218,19 @@ public:
         return result;
     }
 
+    /++
+     + Resets the markov chain's history buffer to an empty state.
+     ++/
     @property
     void reset()
     {
         _history = T[].init;
+        _history.length = sizes.reduce!max;
     }
 
+    /++
+     + Rehashes the associative arrays used in the markov chain's states.
+     ++/
     @property
     void rehash()
     {
@@ -190,11 +240,22 @@ public:
         }
     }
 
+    /++
+     + Pushes tokens to the markov chain's history buffer, seeding it for
+     + subsequent calls to `select()` or `generate()`.
+     +
+     + Note that any tokens that would exceed the space of the history buffer
+     + (which is equal to the size of the largest state) are discarded.
+     ++/
     void seed(T[] seed...)
     {
         seed.retro.take(_history.length).each!(f => push(f));
     }
 
+    /++
+     + Returns a token generated from the internal set of states, based on the
+     + tokens previously generated. If no token can be produced, null is returned.
+     ++/
     T select()()
     if(isAssignable!(T, typeof(null)))
     {
@@ -210,6 +271,9 @@ public:
         return null;
     }
 
+    /++
+     + Ditto
+     ++/
     Nullable!(Unqual!T) select()()
     if(!isAssignable!(T, typeof(null)))
     {
@@ -232,18 +296,27 @@ public:
         return result;
     }
 
+    /++
+     + Returns the sizes of the markov chain's states in an unknown order.
+     ++/
     @property
     size_t[] sizes()
     {
         return _states.values.map!"a.size".array;
     }
 
+    /++
+     + Returns an array representing the markov chain's internal set of states.
+     ++/
     @property
     State!T[] states()
     {
         return _states.values;
     }
 
+    /++
+     + Trains the markov chain from a sequence of input tokens.
+     ++/
     void train(T[] input...)
     {
         foreach(index, follow; input)
