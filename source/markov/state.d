@@ -1,6 +1,8 @@
 
 module markov.state;
 
+import std.algorithm;
+import std.array;
 import std.exception;
 import std.random;
 import std.traits;
@@ -17,6 +19,12 @@ private:
     struct Key
     {
         const T[] _key;
+
+        @property
+        T[] value()
+        {
+            return cast(T[]) _key.dup;
+        }
 
         bool opEquals(ref const Key other) const
         {
@@ -64,6 +72,12 @@ public:
     Counter!T get(T[] first)
     {
         return _counters[Key(first)];
+    }
+
+    @property
+    T[][] keys()
+    {
+        return _counters.keys.map!"a.value".array;
     }
 
     @property

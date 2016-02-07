@@ -238,6 +238,12 @@ public:
         return _states.values.map!"a.size".array;
     }
 
+    @property
+    State!T[] states()
+    {
+        return _states.values;
+    }
+
     void train(T[] input...)
     {
         foreach(index, follow; input)
