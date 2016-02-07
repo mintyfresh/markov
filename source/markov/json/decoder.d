@@ -8,7 +8,6 @@ import markov.state;
 
 import std.algorithm;
 import std.array;
-import std.base64;
 import std.conv;
 import std.json;
 import std.range;
@@ -59,15 +58,13 @@ private:
 
     T decodeKey(string key)
     {
-        string encoded = Base64.decode(key).map!(to!char).array;
-
         static if(hasDecodeProperty!(T, string))
         {
-            return T.decode(encoded);
+            return T.decode(key);
         }
         else
         {
-            return encoded.to!T;
+            return key.to!T;
         }
     }
 }

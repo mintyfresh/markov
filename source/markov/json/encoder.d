@@ -8,7 +8,6 @@ import markov.state;
 
 import std.algorithm;
 import std.array;
-import std.base64;
 import std.conv;
 import std.json;
 import std.stdio;
@@ -68,14 +67,12 @@ private:
     {
         static if(hasEncodeProperty!(T, string))
         {
-            string encoded = key.encode;
+            return key.encode;
         }
         else
         {
-            string encoded = key.text;
+            return key.text;
         }
-
-        return Base64.encode(encoded.map!(to!ubyte).array);
     }
 }
 
