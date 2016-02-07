@@ -12,6 +12,7 @@ import std.bitmanip;
 import std.conv;
 import std.outbuffer;
 import std.range;
+import std.stdio;
 import std.traits;
 
 struct BinaryEncoder(T)
@@ -69,7 +70,7 @@ private:
     {
         // TODO : Handle wide strings.
         encodeValue!(uint)(cast(uint) value.length, output);
-        value.map!(to!ubyte).each!(b => put(output, b));
+        put(output, value);
     }
 
     void encodeValue(Type, Range)(Type value, ref Range output)
@@ -94,7 +95,7 @@ private:
     void encodeValue(Type, Range)(Type value, ref Range output)
     if(isOutputRange!(Range, ubyte) && isNumeric!Type)
     {
-        value.nativeToBigEndian[].each!(b => put(output, b));
+        put(output, value.nativeToBigEndian[]);
     }
 
     void encodeValue(Type, Range)(Type value, ref Range output)
@@ -108,7 +109,7 @@ private:
     {
         static if(hasEncodeProperty!(T, ubyte[]))
         {
-            token.encode.each!(b => put(output, b));
+            put(output, token.encode);
         }
         else
         {
@@ -124,17 +125,57 @@ private:
     }
 }
 
+ubyte[] encodeBinary(T)(ref MarkovChain!T chain)
+{
+    BinaryEncoder!T encoder;
+    return encoder.encode(chain);
+}
+
+void encodeBinary(T, Range)(ref MarkovChain!T chain, ref Range output)
+if(isOutputRange!(Range, ubyte))
+{
+    BinaryEncoder!T encoder;
+    encoder.encode(chain, output);
+}
+
+void encodeBinary(T)(ref MarkovChain!T chain, File output)
+{
+    static struct FileOutputRange
+    {
+        File _file;
+
+        this(File file)
+        {
+            _file = file;
+        }
+
+        void opCall(ubyte b)
+        {
+            _file.rawWrite([b]);
+        }
+
+        void opCall(ubyte[] b)
+        {
+            _file.rawWrite(b);
+        }
+    }
+
+    BinaryEncoder!T encoder;
+    auto range = FileOutputRange(output);
+
+    encoder.encode(chain, range);
+}
+
 unittest
 {
     import markov.binary.decoder;
     auto chain1 = MarkovChain!string(1, 2, 3);
     chain1.train("a", "b", "c", "e", "b", "a", "b", "a", "c", "e", "d", "c", "b", "a");
 
-    BinaryEncoder!string encoder;
-    BinaryDecoder!string decoder;
-
-    auto bytes = encoder.encode(chain1);
-    auto chain2 = decoder.decode(bytes);
+    import markov.json.encoder;
+    chain1.encodeBinary(File("test", "wb"));
+    auto chain3 = decodeBinary!string(File("test", "rb"));
+    auto chain2 = chain1.encodeBinary.decodeBinary!string;
 
     assert(chain1.sizes.length == chain2.sizes.length);
 

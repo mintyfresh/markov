@@ -11,6 +11,7 @@ import std.array;
 import std.bitmanip;
 import std.conv;
 import std.range;
+import std.stdio;
 import std.traits;
 
 struct BinaryDecoder(T)
@@ -135,8 +136,54 @@ private:
     }
 }
 
-unittest
+MarkovChain!T decodeBinary(T)(ubyte[] encoded)
 {
-    BinaryDecoder!string decoder;
-    decoder.decode([0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]);
+    BinaryDecoder!T decoder;
+    return decoder.decode(encoded);
+}
+
+MarkovChain!T decodeBinary(T, Range)(ref Range input)
+if(isInputRange!Range && is(ElementType!Range : ubyte))
+{
+    BinaryDecoder!T decoder;
+    return decoder.decode(input);
+}
+
+MarkovChain!T decodeBinary(T)(File input)
+{
+    static struct FileInputRange
+    {
+        ubyte[] _buffer;
+        File _file;
+
+        this(File file)
+        {
+            _file = file;
+            _buffer = [ 0 ];
+
+            if(!empty) popFront;
+        }
+
+        @property
+        bool empty()
+        {
+            return _file.eof || _file.error;
+        }
+
+        @property
+        ubyte front()
+        {
+            return _buffer.length ? _buffer[0] : 0;
+        }
+
+        void popFront()
+        {
+            _file.rawRead(_buffer);
+        }
+    }
+
+    BinaryDecoder!T decoder;
+    auto range = FileInputRange(input);
+
+    return decoder.decode(range);
 }

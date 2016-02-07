@@ -76,14 +76,13 @@ private:
     }
 }
 
-@property
-string toJson(T)(ref MarkovChain!T chain, bool pretty = false)
+string encodeJSON(T)(ref MarkovChain!T chain, bool pretty = false)
 {
-    return JsonEncoder!T(pretty).encode(chain);
+    JsonEncoder!T encoder = JsonEncoder!T(pretty);
+    return encoder.encode(chain);
 }
 
-@property
-File writeJson(T)(ref MarkovChain!T chain, File output, bool pretty = false)
+void encodeJSON(T)(ref MarkovChain!T chain, File output, bool pretty = false)
 {
-    return output.write(chain.toJson(pretty)), output;
+    output.write(chain.encodeJSON(pretty));
 }

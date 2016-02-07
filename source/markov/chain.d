@@ -2,6 +2,7 @@
 module markov.chain;
 
 import std.algorithm;
+import std.exception;
 import std.range;
 import std.traits;
 import std.typecons;
@@ -36,6 +37,8 @@ public:
      ++/
     this(State!T[] states...)
     {
+        enforce(states.length, "Cannot construct markov chain with 0 states.");
+
         foreach(state; states)
         {
             _states[state.size] = state;

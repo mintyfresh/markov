@@ -69,16 +69,15 @@ private:
     }
 }
 
-@property
-MarkovChain!T toMarkovChain(T)(string input)
+MarkovChain!T decodeJSON(T)(string encoded)
 {
-    return JsonDecoder!T().decode(input);
+    JsonDecoder!T decoder;
+    return decoder.decode(encoded);
 }
 
-@property
-MarkovChain!T readMarkovChain(T)(File input, size_t chunkSize = 4096)
+MarkovChain!T decodeJSON(T, string format)(File input, size_t chunkSize = 4096)
 {
-    return input.byChunk(chunkSize).joiner.text.toMarkovChain!T;
+    return input.byChunk(chunkSize).joiner.text.decodeJSON!T;
 }
 
 unittest
@@ -87,7 +86,7 @@ unittest
     chain1.train("a", "b", "c", "e", "b", "a", "b", "a", "c", "e", "d", "c", "b", "a");
 
     import markov.json.encoder;
-    auto chain2 = chain1.toJson.toMarkovChain!string;
+    auto chain2 = chain1.encodeJSON.decodeJSON!string;
 
     assert(chain1.sizes.length == chain2.sizes.length);
 
