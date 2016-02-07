@@ -12,6 +12,7 @@ import std.base64;
 import std.conv;
 import std.json;
 import std.range;
+import std.stdio;
 import std.typecons;
 
 class JsonDecoder(T) : Decoder!(T, string)
@@ -75,6 +76,12 @@ private:
 MarkovChain!T toMarkovChain(T)(string input)
 {
     return new JsonDecoder!T().decode(input);
+}
+
+@property
+MarkovChain!T readMarkovChain(T)(File input, size_t chunkSize = 4096)
+{
+    return input.byChunk(chunkSize).joiner.text.toMarkovChain!T;
 }
 
 unittest

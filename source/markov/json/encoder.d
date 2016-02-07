@@ -11,6 +11,7 @@ import std.array;
 import std.base64;
 import std.conv;
 import std.json;
+import std.stdio;
 import std.string;
 
 class JsonEncoder(T) : Encoder!(T, string)
@@ -82,4 +83,10 @@ private:
 string toJson(T)(ref MarkovChain!T chain, bool pretty = false)
 {
     return new JsonEncoder!T(pretty).encode(chain);
+}
+
+@property
+File writeJson(T)(ref MarkovChain!T chain, File output, bool pretty = false)
+{
+    return output.write(chain.toJson(pretty)), output;
 }
