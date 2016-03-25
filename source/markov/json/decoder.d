@@ -24,11 +24,15 @@ struct JsonDecoder(T)
 private:
     State!T[] decodeStates(JSONValue json)
     {
+        import std.stdio;
+        json.toString.writeln;
         return json.array.map!(state => decodeState(state)).array;
     }
 
     State!T decodeState(JSONValue json)
     {
+        import std.stdio;
+        json.toString.writeln;
         State!T state = State!T(json["size"].str.to!uint);
 
         foreach(first, counter; json["counters"].object)
@@ -75,9 +79,9 @@ MarkovChain!T decodeJSON(T)(string encoded)
     return decoder.decode(encoded);
 }
 
-MarkovChain!T decodeJSON(T, string format)(File input, size_t chunkSize = 4096)
+MarkovChain!T decodeJSON(T)(File input, size_t chunkSize = 4096)
 {
-    return input.byChunk(chunkSize).joiner.text.decodeJSON!T;
+    return input.byChunk(chunkSize).joiner.map!(to!char).text.decodeJSON!T;
 }
 
 unittest
