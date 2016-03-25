@@ -156,9 +156,7 @@ public:
         // Ensure that first length is equal to this state's size.
         enforce(first.length == size, "Length of input doesn't match size.");
 
-        auto ptr = Key(first) in _counters;
-
-        if(ptr !is null)
+        if(auto ptr = Key(first) in _counters)
         {
             ptr.poke(follow);
         }
@@ -263,8 +261,10 @@ public:
 
         if(!empty)
         {
-            auto ptr = Key(first) in _counters;
-            if(ptr) return ptr.select;
+            if(auto ptr = Key(first) in _counters)
+            {
+                return ptr.select;
+            }
         }
 
         return result;

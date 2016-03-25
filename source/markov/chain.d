@@ -61,9 +61,7 @@ public:
      ++/
     void feed(T[] first, T follow)
     {
-        auto ptr = first.length in _states;
-
-        if(ptr !is null)
+        if(auto ptr = first.length in _states)
         {
             ptr.poke(first, follow);
         }

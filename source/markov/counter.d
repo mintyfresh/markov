@@ -128,9 +128,8 @@ public:
     void poke(T follow)
     {
         scope(exit) _total = 0;
-        auto ptr = Key(follow) in _counts;
 
-        if(ptr !is null)
+        if(auto ptr = Key(follow) in _counts)
         {
             *ptr = *ptr + 1;
         }
