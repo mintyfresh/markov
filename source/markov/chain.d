@@ -250,7 +250,7 @@ public:
      ++/
     void seed(T[] seed...)
     {
-        seed.retro.take(_history.length).each!(f => push(f));
+        seed.retro.take(_history.length).retro.each!(f => push(f));
     }
 
     /++
