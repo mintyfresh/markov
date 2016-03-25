@@ -3,4 +3,11 @@ docs.json
 __dummy.html
 *.o
 *.obj
+*.lib
+*.dll
+*.exe
+*.dylib
+*.so
+*.a
+*.selections.json
 __test__library__
