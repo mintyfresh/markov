@@ -1,4 +1,4 @@
-# markov
+# markov [![DUB](https://img.shields.io/dub/v/markov.svg)](http://code.dlang.org/packages/markov) [![DUB](https://img.shields.io/dub/l/markov.svg)](http://code.dlang.org/packages/markov)
 A simple library that provides templated types for markov chains.
 
 ## Usage
