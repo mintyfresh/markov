@@ -24,15 +24,11 @@ struct JsonDecoder(T)
 private:
     State!T[] decodeStates(JSONValue json)
     {
-        import std.stdio;
-        json.toString.writeln;
         return json.array.map!(state => decodeState(state)).array;
     }
 
     State!T decodeState(JSONValue json)
     {
-        import std.stdio;
-        json.toString.writeln;
         State!T state = State!T(json["size"].str.to!uint);
 
         foreach(first, counter; json["counters"].object)
