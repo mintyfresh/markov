@@ -190,7 +190,10 @@ public:
         foreach(ref state; _states)
         {
             T current = state.random;
-            if(current) return push(current), current;
+            if(current) {
+                push(current);
+                return current;
+            }
         }
 
         return null;
@@ -265,7 +268,10 @@ public:
             foreach(ref state; _states.values.sort!"a.size > b.size")
             {
                 T current = state.select(_history[$ - state.size .. $]);
-                if(current) return push(current), current;
+                if(current) {
+                    push(current);
+                    return current;
+                }
             }
         }
 
