@@ -28,7 +28,7 @@ public:
     {
         JSONValue states = chain.states.map!(s => encodeState(s)).array;
 
-        return toJSON(&states, _pretty);
+        return toJSON(states, _pretty);
     }
 
 private:
