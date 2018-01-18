@@ -35,7 +35,7 @@ private:
         /++
          + Returns the hash for a token.
          ++/
-        hash_t toHash() const
+        hash_t toHash() const nothrow @safe
         {
             static if(__traits(compiles, {
                 T key = void;
@@ -46,7 +46,7 @@ private:
             }
             else
             {
-                return hashOf(_key);
+                return typeid(T).getHash(&_key);
             }
         }
 
